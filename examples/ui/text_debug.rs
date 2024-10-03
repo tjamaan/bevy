@@ -6,7 +6,7 @@ use bevy::{
     color::palettes::css::*,
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
-    text::TextBuilderExt,
+    text::TextSpanBuilderExt,
     ui::widget::UiTextWriter,
     window::PresentMode,
 };
@@ -162,7 +162,7 @@ fn infotext_system(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             TextChanges
         ))
-        .with_spans::<TextSpan>(vec![
+        .with_spans::<TextSpan>([
             (
                 "\nThis text changes in the bottom right".into(),
                 TextStyle {
@@ -198,7 +198,7 @@ fn infotext_system(mut commands: Commands, asset_server: Res<AssetServer>) {
                 },
             ),
             (
-                TextSpan::empty(),
+                String::default(),
                 TextStyle {
                     font: font.clone(),
                     font_size: 21.0,
@@ -216,7 +216,7 @@ fn infotext_system(mut commands: Commands, asset_server: Res<AssetServer>) {
                 },
             ),
             (
-                TextSpan::empty(),
+                String::default(),
                 TextStyle {
                     font: font.clone(),
                     font_size: 21.0,

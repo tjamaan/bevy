@@ -17,9 +17,9 @@ use bevy_ecs::{
     system::{Commands, Local, Query, Res, ResMut},
 };
 use bevy_math::Vec2;
-use bevy_render::world_sync::TemporaryRenderEntity;
 use bevy_reflect::{prelude::ReflectDefault, Reflect};
 use bevy_render::view::Visibility;
+use bevy_render::world_sync::TemporaryRenderEntity;
 use bevy_render::{
     primitives::Aabb,
     texture::Image,

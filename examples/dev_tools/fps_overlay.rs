@@ -3,6 +3,7 @@
 use bevy::{
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin},
     prelude::*,
+    text::FontSmoothing,
 };
 
 fn main() {
@@ -18,6 +19,8 @@ fn main() {
                         color: Color::srgb(0.0, 1.0, 0.0),
                         // If we want, we can use a custom font
                         font: default(),
+                        // We could also disable font smoothing,
+                        font_smoothing: FontSmoothing::default(),
                     },
                     enabled: true,
                 },
@@ -45,14 +48,11 @@ fn setup(mut commands: Commands) {
             ..default()
         })
         .with_children(|c| {
-            c.spawn(TextBundle::from_section(
-                concat!(
-                    "Press 1 to change color of the overlay.\n",
-                    "Press 2 to change size of the overlay.\n",
-                    "Press 3 to toggle the overlay."
-                ),
-                TextStyle::default(),
-            ));
+            c.spawn(TextNEW::new(concat!(
+                "Press 1 to change color of the overlay.\n",
+                "Press 2 to change size of the overlay.\n",
+                "Press 3 to toggle the overlay."
+            )));
         });
 }
 

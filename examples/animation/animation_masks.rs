@@ -328,7 +328,6 @@ fn handle_button_toggles(
                 } else {
                     Color::WHITE
                 };
-                true
             });
         }
 

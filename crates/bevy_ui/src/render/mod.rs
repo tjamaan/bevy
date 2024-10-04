@@ -39,11 +39,7 @@ use bevy_render::{
 use bevy_sprite::TextureAtlasLayout;
 use bevy_sprite::{BorderRect, ImageScaleMode, SpriteAssetEvents, TextureAtlas};
 #[cfg(feature = "bevy_text")]
-use bevy_text::PositionedGlyph;
-#[cfg(feature = "bevy_text")]
-use bevy_text::Text;
-#[cfg(feature = "bevy_text")]
-use bevy_text::TextLayoutInfo;
+use bevy_text::{ComputedTextBlock, PositionedGlyph, TextLayoutInfo, TextStyle};
 use bevy_transform::components::GlobalTransform;
 use bevy_utils::HashMap;
 use bytemuck::{Pod, Zeroable};
@@ -540,15 +536,23 @@ pub fn extract_uinode_text(
             &ViewVisibility,
             Option<&CalculatedClip>,
             Option<&TargetCamera>,
-            &Text,
+            &ComputedTextBlock,
             &TextLayoutInfo,
         )>,
     >,
+    text_styles: Extract<Query<&TextStyle>>,
     mapping: Extract<Query<&RenderEntity>>,
 ) {
     let default_ui_camera = default_ui_camera.get();
-    for (uinode, global_transform, view_visibility, clip, camera, text, text_layout_info) in
-        &uinode_query
+    for (
+        uinode,
+        global_transform,
+        view_visibility,
+        clip,
+        camera,
+        computed_block,
+        text_layout_info,
+    ) in &uinode_query
     {
         let Some(camera_entity) = camera.map(TargetCamera::entity).or(default_ui_camera) else {
             continue;
@@ -587,17 +591,26 @@ pub fn extract_uinode_text(
         transform.translation *= inverse_scale_factor;
 
         let mut color = LinearRgba::WHITE;
-        let mut current_section = usize::MAX;
+        let mut current_span = usize::MAX;
         for PositionedGlyph {
             position,
             atlas_info,
-            section_index,
+            span_index,
             ..
         } in &text_layout_info.glyphs
         {
-            if *section_index != current_section {
-                color = LinearRgba::from(text.sections[*section_index].style.color);
-                current_section = *section_index;
+            if *span_index != current_span {
+                color = text_styles
+                    .get(
+                        computed_block
+                            .entities()
+                            .get(*span_index)
+                            .map(|t| t.entity)
+                            .unwrap_or(Entity::PLACEHOLDER),
+                    )
+                    .map(|style| LinearRgba::from(style.color))
+                    .unwrap_or_default();
+                current_span = *span_index;
             }
             let atlas = texture_atlases.get(&atlas_info.texture_atlas).unwrap();
 

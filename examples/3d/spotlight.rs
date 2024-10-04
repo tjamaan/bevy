@@ -126,14 +126,15 @@ fn setup(
         ..default()
     });
 
-    commands.spawn(
-        TextBundle::from_section(INSTRUCTIONS, TextStyle::default()).with_style(Style {
+    commands.spawn((
+        TextNEW::new(INSTRUCTIONS),
+        Style {
             position_type: PositionType::Absolute,
             top: Val::Px(12.0),
             left: Val::Px(12.0),
             ..default()
-        }),
-    );
+        },
+    ));
 }
 
 fn light_sway(time: Res<Time>, mut query: Query<(&mut Transform, &mut SpotLight)>) {

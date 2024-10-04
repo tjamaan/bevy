@@ -43,6 +43,7 @@ mod glyph;
 mod pipeline;
 mod text;
 mod text2d;
+mod text_access;
 
 pub use cosmic_text;
 
@@ -56,13 +57,17 @@ pub use glyph::*;
 pub use pipeline::*;
 pub use text::*;
 pub use text2d::*;
+pub use text_access::*;
 
 /// The text prelude.
 ///
 /// This includes the most common types in this crate, re-exported for your convenience.
 pub mod prelude {
     #[doc(hidden)]
-    pub use crate::{Font, JustifyText, Text, Text2dBundle, TextError, TextSection, TextStyle};
+    pub use crate::{
+        Font, JustifyText, LineBreak, Text2d, TextBlock, TextError, TextReader2d, TextSpan2d,
+        TextStyle, TextWriter2d,
+    };
 }
 
 use bevy_app::prelude::*;
@@ -98,35 +103,37 @@ pub enum YAxisOrientation {
     BottomToTop,
 }
 
-/// A convenient alias for `With<Text>`, for use with
-/// [`bevy_render::view::VisibleEntities`].
-pub type WithText = With<Text>;
+/// System set in [`PostUpdate`] where all 2d text update systems are executed.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub struct Update2dText;
 
 impl Plugin for TextPlugin {
     fn build(&self, app: &mut App) {
         app.init_asset::<Font>()
-            .register_type::<Text>()
+            .register_type::<Text2d>()
+            .register_type::<TextSpan2d>()
             .register_type::<TextBounds>()
             .init_asset_loader::<FontLoader>()
             .init_resource::<FontAtlasSets>()
             .init_resource::<TextPipeline>()
             .init_resource::<CosmicFontSystem>()
             .init_resource::<SwashCache>()
+            .init_resource::<TextIterScratch>()
             .add_systems(
                 PostUpdate,
                 (
-                    calculate_bounds_text2d
-                        .in_set(VisibilitySystems::CalculateBounds)
-                        .after(update_text2d_layout),
+                    remove_dropped_font_atlas_sets,
+                    detect_text_needs_rerender::<Text2d, TextSpan2d>,
                     update_text2d_layout
-                        .after(remove_dropped_font_atlas_sets)
                         // Potential conflict: `Assets<Image>`
                         // In practice, they run independently since `bevy_render::camera_update_system`
                         // will only ever observe its own render target, and `update_text2d_layout`
                         // will never modify a pre-existing `Image` asset.
                         .ambiguous_with(CameraUpdateSystem),
-                    remove_dropped_font_atlas_sets,
-                ),
+                    calculate_bounds_text2d.in_set(VisibilitySystems::CalculateBounds),
+                )
+                    .chain()
+                    .in_set(Update2dText),
             )
             .add_systems(Last, trim_cosmic_cache);
 

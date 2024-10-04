@@ -49,8 +49,12 @@ pub mod prelude {
     #[doc(hidden)]
     pub use {
         crate::{
-            geometry::*, node_bundles::*, ui_material::*, ui_node::*, widget::Button,
-            widget::Label, Interaction, UiMaterialPlugin, UiScale,
+            geometry::*,
+            node_bundles::*,
+            ui_material::*,
+            ui_node::*,
+            widget::{Button, Label, TextNEW, TextSpan, UiTextReader, UiTextWriter},
+            Interaction, UiMaterialPlugin, UiScale,
         },
         // `bevy_sprite` re-exports for texture slicing
         bevy_sprite::{BorderRect, ImageScaleMode, SliceScaleMode, TextureSlicer},
@@ -214,16 +218,23 @@ impl Plugin for UiPlugin {
 /// A function that should be called from [`UiPlugin::build`] when [`bevy_text`] is enabled.
 #[cfg(feature = "bevy_text")]
 fn build_text_interop(app: &mut App) {
-    use crate::widget::TextFlags;
+    use crate::widget::TextNodeFlags;
     use bevy_text::TextLayoutInfo;
+    use widget::{TextNEW, TextSpan};
 
     app.register_type::<TextLayoutInfo>()
-        .register_type::<TextFlags>();
+        .register_type::<TextNodeFlags>()
+        .register_type::<TextNEW>()
+        .register_type::<TextSpan>();
 
     app.add_systems(
         PostUpdate,
         (
-            widget::measure_text_system
+            (
+                bevy_text::detect_text_needs_rerender::<TextNEW, TextSpan>,
+                widget::measure_text_system,
+            )
+                .chain()
                 .in_set(UiSystem::Prepare)
                 // Potential conflict: `Assets<Image>`
                 // Since both systems will only ever insert new [`Image`] assets,

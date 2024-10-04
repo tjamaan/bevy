@@ -377,8 +377,8 @@ fn setup(
     });
 
     // Instructions for the example:
-    commands.spawn(
-        TextBundle::from_section(
+    commands.spawn((
+        TextNEW::new(
             "Controls:\n\
             M: Toggle between sampling boundary and interior.\n\
             A: Toggle automatic spawning & despawning of points.\n\
@@ -389,15 +389,14 @@ fn setup(
             Zoom camera by scrolling via mouse or +/-.\n\
             Move camera by L/R arrow keys.\n\
             Tab: Toggle this text",
-            TextStyle::default(),
-        )
-        .with_style(Style {
+        ),
+        Style {
             position_type: PositionType::Absolute,
             top: Val::Px(12.0),
             left: Val::Px(12.0),
             ..default()
-        }),
-    );
+        },
+    ));
 
     // No points are scheduled to spawn initially.
     commands.insert_resource(SpawnQueue(0));
@@ -426,7 +425,7 @@ fn handle_keypress(
     shapes: Res<SampledShapes>,
     mut spawn_queue: ResMut<SpawnQueue>,
     mut counter: ResMut<PointCounter>,
-    mut text_menus: Query<&mut Visibility, With<Text>>,
+    mut text_menus: Query<&mut Visibility, With<TextNEW>>,
     mut camera: Query<&mut CameraRig>,
 ) {
     // R => restart, deleting all samples

@@ -19,15 +19,12 @@ fn setup(
 ) {
     commands
         .spawn((
-            TextBundle {
-                text: Text::from_section("Click Me to get a box", TextStyle::default()),
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    top: Val::Percent(12.0),
-                    left: Val::Percent(12.0),
-                    ..default()
-                },
-                ..Default::default()
+            TextNEW::new("Click Me to get a box"),
+            Style {
+                position_type: PositionType::Absolute,
+                top: Val::Percent(12.0),
+                left: Val::Percent(12.0),
+                ..default()
             },
             Pickable::default(),
         ))
@@ -45,16 +42,18 @@ fn setup(
                 *num += 1;
             },
         )
-        .observe(|evt: Trigger<Pointer<Out>>, mut texts: Query<&mut Text>| {
-            let mut text = texts.get_mut(evt.entity()).unwrap();
-            let first = text.sections.first_mut().unwrap();
-            first.style.color = WHITE.into();
-        })
-        .observe(|evt: Trigger<Pointer<Over>>, mut texts: Query<&mut Text>| {
-            let mut text = texts.get_mut(evt.entity()).unwrap();
-            let first = text.sections.first_mut().unwrap();
-            first.style.color = BLUE.into();
-        });
+        .observe(
+            |evt: Trigger<Pointer<Out>>, mut texts: Query<&mut TextStyle>| {
+                let mut style = texts.get_mut(evt.entity()).unwrap();
+                style.color = WHITE.into();
+            },
+        )
+        .observe(
+            |evt: Trigger<Pointer<Over>>, mut texts: Query<&mut TextStyle>| {
+                let mut style = texts.get_mut(evt.entity()).unwrap();
+                style.color = BLUE.into();
+            },
+        );
     // circular base
     commands
         .spawn((

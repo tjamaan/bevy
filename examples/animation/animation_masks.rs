@@ -322,7 +322,7 @@ fn handle_button_toggles(
 
         // Update the text color of the button.
         for &kid in children.iter() {
-            writer.for_each(kid, |_, _, _, mut style| {
+            writer.for_each_style(kid, |mut style| {
                 style.color = if mask_group_control.enabled {
                     Color::BLACK
                 } else {

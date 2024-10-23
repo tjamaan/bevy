@@ -278,6 +278,9 @@ pub struct Style {
     /// <https://developer.mozilla.org/en-US/docs/Web/CSS/position>
     pub position_type: PositionType,
 
+    /// TODO: documentation
+    pub direction: Direction,
+
     /// Whether overflowing content should be displayed or clipped.
     ///
     /// <https://developer.mozilla.org/en-US/docs/Web/CSS/overflow>
@@ -534,6 +537,7 @@ impl Style {
     pub const DEFAULT: Self = Self {
         display: Display::DEFAULT,
         position_type: PositionType::DEFAULT,
+        direction: Direction::DEFAULT,
         left: Val::Auto,
         right: Val::Auto,
         top: Val::Auto,
@@ -1037,6 +1041,31 @@ impl PositionType {
 }
 
 impl Default for PositionType {
+    fn default() -> Self {
+        Self::DEFAULT
+    }
+}
+
+/// The layout direction of this node whether left-to-right or right-to-left
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Reflect)]
+#[reflect(Default, PartialEq)]
+#[cfg_attr(
+    feature = "serialize",
+    derive(serde::Serialize, serde::Deserialize),
+    reflect(Serialize, Deserialize)
+)]
+pub enum Direction {
+    /// Left-to-right
+    Ltr,
+    /// Right-to-left
+    Rtl,
+}
+
+impl Direction {
+    pub const DEFAULT: Self = Self::Ltr;
+}
+
+impl Default for Direction {
     fn default() -> Self {
         Self::DEFAULT
     }

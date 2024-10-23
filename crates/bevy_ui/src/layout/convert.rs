@@ -1,7 +1,7 @@
 use taffy::style_helpers;
 
 use crate::{
-    AlignContent, AlignItems, AlignSelf, Display, FlexDirection, FlexWrap, GridAutoFlow,
+    AlignContent, AlignItems, AlignSelf, Direction, Display, FlexDirection, FlexWrap, GridAutoFlow,
     GridPlacement, GridTrack, GridTrackRepetition, JustifyContent, JustifyItems, JustifySelf,
     MaxTrackSizingFunction, MinTrackSizingFunction, OverflowAxis, PositionType, RepeatedGridTrack,
     Style, UiRect, Val,
@@ -70,6 +70,9 @@ pub fn from_style(
 ) -> taffy::style::Style {
     taffy::style::Style {
         display: style.display.into(),
+        item_is_table: false,
+        box_sizing: taffy::BoxSizing::BorderBox,
+        direction: style.direction.into(),
         overflow: taffy::Point {
             x: style.overflow.x.into(),
             y: style.overflow.y.into(),
@@ -125,6 +128,7 @@ pub fn from_style(
             width: style.column_gap.into_length_percentage(context),
             height: style.row_gap.into_length_percentage(context),
         },
+        text_align: taffy::TextAlign::Auto,
         grid_auto_flow: style.grid_auto_flow.into(),
         grid_template_rows: style
             .grid_template_rows
@@ -248,6 +252,15 @@ impl From<Display> for taffy::style::Display {
             Display::Grid => taffy::style::Display::Grid,
             Display::Block => taffy::style::Display::Block,
             Display::None => taffy::style::Display::None,
+        }
+    }
+}
+
+impl From<Direction> for taffy::style::Direction {
+    fn from(value: Direction) -> Self {
+        match value {
+            Direction::Ltr => taffy::style::Direction::Ltr,
+            Direction::Rtl => taffy::style::Direction::Rtl,
         }
     }
 }
@@ -451,6 +464,7 @@ mod tests {
         let bevy_style = Style {
             display: Display::Flex,
             position_type: PositionType::Absolute,
+            direction: Direction::Ltr,
             left: Val::ZERO,
             right: Val::Percent(50.),
             top: Val::Px(12.),

@@ -1212,7 +1212,7 @@ impl World {
     pub fn get_many_entities_dynamic_mut<'w>(
         &'w mut self,
         entities: &[Entity],
-    ) -> Result<Vec<EntityMut<'w>>, QueryEntityError> {
+    ) -> Result<Vec<EntityMut<'w>>, QueryEntityError<'w>> {
         self.get_entity_mut(entities).map_err(|e| match e {
             EntityFetchError::NoSuchEntity(entity) => QueryEntityError::NoSuchEntity(entity),
             EntityFetchError::AliasedMutability(entity) => {
@@ -1255,7 +1255,7 @@ impl World {
     pub fn get_many_entities_from_set_mut<'w>(
         &'w mut self,
         entities: &EntityHashSet,
-    ) -> Result<Vec<EntityMut<'w>>, QueryEntityError> {
+    ) -> Result<Vec<EntityMut<'w>>, QueryEntityError<'w>> {
         self.get_entity_mut(entities)
             .map(|fetched| fetched.into_values().collect())
             .map_err(|e| match e {
